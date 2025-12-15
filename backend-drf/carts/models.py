@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from products.models import Product
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -22,16 +23,15 @@ class Cart(models.Model):
 
     @property
     def tax_amount(self):
-        total_tax = 0
+        tax = 0
         for item in self.items.all():
-            subtotal = item.product.price * item.quantity
-            tax = subtotal  * (item.product.tax_percent/100)
-            total_tax += subtotal + tax
-        return total_tax
+            tax = tax + item.product.price * item.quantity * item.product.tax_percent / 100
+        return tax
 
     @property
     def grand_total(self):
-        return self.subtotal + self.tax_amount
+        grand_total= self.subtotal + self.tax_amount
+        return grand_total.quantize(Decimal("0.00"))
      
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE,related_name='items')

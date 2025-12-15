@@ -6,6 +6,7 @@ from carts.models import Cart
 from .models import Order,OrderItem
 from .serializers import OrderSerializer
 from rest_framework import status
+from .utils import send_order_notification
 # Create your views here.
 class PlaceOrderView(APIView):
     # the user is logged in 
@@ -36,7 +37,7 @@ class PlaceOrderView(APIView):
         cart.items.all().delete()
         cart.save()
         # send the notification email
-
+        send_order_notification(order)
         # return responce with status 201 to frontend
         serializer = OrderSerializer(order)
         return Response(serializer.data,status=status.HTTP_201_CREATED)
